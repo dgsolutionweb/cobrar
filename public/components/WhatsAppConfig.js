@@ -16,6 +16,7 @@ function WhatsAppConfig() {
   const [enviandoCobrancas, setEnviandoCobrancas] = useState(false);
   const [resultadoEnvio, setResultadoEnvio] = useState(null);
   const [statusOriginal, setStatusOriginal] = useState(null);
+  const [ultimaVerificacao, setUltimaVerificacao] = useState(null);
 
   useEffect(() => {
     // Carrega os dados do usuário
@@ -25,7 +26,7 @@ function WhatsAppConfig() {
         setUsuario(data);
         
         // Se não foi especificado um ID, usa o ID da empresa do usuário logado
-        if (!id && data.empresa) {
+        if (!id && data.empresaId) {
           loadEmpresa(data.empresaId);
         } else if (id) {
           loadEmpresa(id);
@@ -34,6 +35,7 @@ function WhatsAppConfig() {
           setErro('Empresa não encontrada');
         }
       } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
         setCarregando(false);
         setErro('Erro ao carregar dados do usuário');
       }
@@ -55,13 +57,13 @@ function WhatsAppConfig() {
       const empresa = await API.Empresa.obterEmpresa(empresaId);
       setEmpresa(empresa);
       
-      // Verifica o status da sessão do WhatsApp
+      // Verifica o status da sessão do WhatsApp imediatamente
       await verificarStatusSessao(empresaId);
       
       // Configura um intervalo para verificar o status periodicamente
       const intervalId = setInterval(() => {
         verificarStatusSessao(empresaId);
-      }, 10000); // Verifica a cada 10 segundos
+      }, 5000); // Verifica a cada 5 segundos (reduzido de 10 para diagnóstico mais rápido)
       
       setIntervalo(intervalId);
       setCarregando(false);
@@ -75,36 +77,59 @@ function WhatsAppConfig() {
   // Verifica o status da sessão do WhatsApp
   const verificarStatusSessao = async (empresaId) => {
     try {
-      console.log('Verificando status da sessão do WhatsApp para empresa:', empresaId);
+      console.log(`Verificando status da sessão do WhatsApp para empresa: ${empresaId}`);
       const status = await API.Empresa.statusSessaoWhatsApp(empresaId);
-      console.log('Status da sessão recebido:', status);
+      const agora = new Date().toLocaleTimeString();
+      setUltimaVerificacao(agora);
+      
+      console.log(`Status recebido às ${agora}:`, status);
       
       // Converte o status para iniciar com letra maiúscula para exibição
       let statusFormatado = 'Desconectado';
-      if (status.status === 'conectado') {
-        statusFormatado = 'Conectado';
-      } else if (status.status === 'aguardando_scan') {
-        statusFormatado = 'Aguardando scan';
-      } else if (status.status === 'iniciando') {
-        statusFormatado = 'Iniciando...';
-      } else if (status.status) {
-        // Formata qualquer outro status, capitalizando a primeira letra
-        statusFormatado = status.status.charAt(0).toUpperCase() + status.status.slice(1).replace(/_/g, ' ');
-      }
       
-      setStatusSessao(statusFormatado);
-      // Armazena o status original para comparações
-      setStatusOriginal(status.status);
-      
-      if (status.qrCode) {
-        console.log('QR Code recebido com tamanho:', status.qrCode.length);
-        setQrCode(status.qrCode);
+      if (status && typeof status === 'object') {
+        if (status.status === 'conectado') {
+          statusFormatado = 'Conectado';
+        } else if (status.status === 'aguardando_scan') {
+          statusFormatado = 'Aguardando scan';
+        } else if (status.status === 'iniciando') {
+          statusFormatado = 'Iniciando...';
+        } else if (status.status === 'desconectado_celular') {
+          statusFormatado = 'Desconectado do celular';
+        } else if (status.status) {
+          // Formata qualquer outro status, capitalizando a primeira letra
+          statusFormatado = status.status.charAt(0).toUpperCase() + status.status.slice(1).replace(/_/g, ' ');
+        }
+        
+        // Verifica a propriedade conectado diretamente
+        if (status.conectado === true) {
+          statusFormatado = 'Conectado';
+          status.status = 'conectado'; // Garante consistência
+        }
+        
+        setStatusSessao(statusFormatado);
+        
+        // Armazena o status original para comparações
+        setStatusOriginal(status.status);
+        
+        if (status.qrCode) {
+          console.log(`QR Code recebido com tamanho: ${status.qrCode.length}`);
+          setQrCode(status.qrCode);
+        } else {
+          console.log(`Nenhum QR Code recebido. Status atual: ${status.status}`);
+          // Só limpa o QR code se não estiver aguardando scan
+          if (status.status !== 'aguardando_scan' && status.status !== 'iniciando') {
+            setQrCode(null);
+          }
+        }
       } else {
-        console.log('Nenhum QR Code recebido');
-        setQrCode(null);
+        console.error('Resposta de status inválida:', status);
+        setStatusSessao('Erro');
+        setStatusOriginal('erro');
       }
     } catch (error) {
       console.error('Erro ao verificar status da sessão WhatsApp:', error);
+      setErro('Erro ao verificar status do WhatsApp. Tente novamente.');
     }
   };
 
@@ -116,12 +141,15 @@ function WhatsAppConfig() {
     
     try {
       const empresaId = id || usuario.empresaId;
+      console.log(`Iniciando sessão WhatsApp para empresa ${empresaId}`);
       await API.Empresa.iniciarSessaoWhatsApp(empresaId);
       setSucesso('Iniciando sessão do WhatsApp. Aguardando QR Code...');
       
       // Verifica o status imediatamente após iniciar a sessão
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
       await verificarStatusSessao(empresaId);
     } catch (error) {
+      console.error('Erro ao iniciar sessão:', error);
       setErro(error.message || 'Erro ao iniciar sessão do WhatsApp. Tente novamente.');
     } finally {
       setProcessando(false);
@@ -136,14 +164,37 @@ function WhatsAppConfig() {
     
     try {
       const empresaId = id || usuario.empresaId;
+      console.log(`Encerrando sessão WhatsApp para empresa ${empresaId}`);
       await API.Empresa.encerrarSessaoWhatsApp(empresaId);
       setQrCode(null);
       setSucesso('Sessão do WhatsApp encerrada com sucesso.');
       
+      // Atualiza o status imediatamente
+      setStatusSessao('Desconectado');
+      setStatusOriginal('desconectado');
+      
       // Verifica o status imediatamente após encerrar a sessão
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
       await verificarStatusSessao(empresaId);
     } catch (error) {
+      console.error('Erro ao encerrar sessão:', error);
       setErro(error.message || 'Erro ao encerrar sessão do WhatsApp. Tente novamente.');
+    } finally {
+      setProcessando(false);
+    }
+  };
+
+  // Força a verificação do status
+  const forcarVerificacao = async () => {
+    setProcessando(true);
+    try {
+      const empresaId = id || usuario.empresaId;
+      await verificarStatusSessao(empresaId);
+      setSucesso('Status atualizado com sucesso!');
+      setTimeout(() => setSucesso(''), 3000);
+    } catch (error) {
+      setErro('Erro ao verificar status. Tente novamente.');
+      setTimeout(() => setErro(''), 3000);
     } finally {
       setProcessando(false);
     }
@@ -214,10 +265,30 @@ function WhatsAppConfig() {
                 <div className="col-md-6">
                   <div className="card border h-100">
                     <div className="card-body">
-                      <h6 className="card-title">Status da Conexão</h6>
+                      <h6 className="card-title d-flex justify-content-between align-items-center">
+                        <span>Status da Conexão</span>
+                        <button 
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={forcarVerificacao}
+                          disabled={processando}
+                          title="Atualizar status"
+                        >
+                          <i className="fas fa-sync-alt"></i>
+                        </button>
+                      </h6>
+                      
+                      {ultimaVerificacao && (
+                        <small className="text-muted d-block mb-2">
+                          Última verificação: {ultimaVerificacao}
+                        </small>
+                      )}
+                      
                       <div className="d-flex align-items-center mb-3">
                         <div className={`status-indicator ${statusOriginal === 'conectado' ? 'bg-success' : 'bg-danger'}`}></div>
-                        <span className="ms-2">{statusSessao}</span>
+                        <span className="ms-2">
+                          {statusSessao} 
+                          <small className="text-muted ms-2">({statusOriginal})</small>
+                        </span>
                       </div>
                       
                       <p className="card-text">
@@ -292,22 +363,40 @@ function WhatsAppConfig() {
                 </div>
               </div>
               
-              <div className="card border mb-4">
-                <div className="card-body">
-                  <h6 className="card-title">Instruções de Uso</h6>
-                  <ol className="mb-0">
-                    <li className="mb-2">Clique em "Iniciar Sessão" para gerar um QR Code.</li>
-                    <li className="mb-2">Abra o WhatsApp no seu celular.</li>
-                    <li className="mb-2">Toque em Configurações (ou nos três pontos) &gt; WhatsApp Web.</li>
-                    <li className="mb-2">Escaneie o QR Code exibido nesta página.</li>
-                    <li>Após a conexão, o sistema poderá enviar mensagens de cobrança automaticamente.</li>
-                  </ol>
+              <div className="row mb-4">
+                <div className="col-12">
+                  <div className="card border">
+                    <div className="card-body">
+                      <h6 className="card-title">Informações de Debug</h6>
+                      <div className="table-responsive">
+                        <table className="table table-sm">
+                          <tbody>
+                            <tr>
+                              <th>Status original (API):</th>
+                              <td>{statusOriginal || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                              <th>Status formatado:</th>
+                              <td>{statusSessao}</td>
+                            </tr>
+                            <tr>
+                              <th>QR Code disponível:</th>
+                              <td>{qrCode ? 'Sim' : 'Não'}</td>
+                            </tr>
+                            <tr>
+                              <th>ID da empresa:</th>
+                              <td>{id || usuario?.empresaId || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                              <th>Última verificação:</th>
+                              <td>{ultimaVerificacao || 'N/A'}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="alert alert-warning" role="alert">
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                <strong>Importante:</strong> Mantenha seu celular conectado à internet para que as mensagens possam ser enviadas.
               </div>
 
               <div className="row mb-4">
@@ -355,10 +444,23 @@ function WhatsAppConfig() {
                   )}
                 </div>
               </div>
+              
+              <div className="row">
+                <div className="col-12">
+                  <h6 className="border-bottom pb-2 mb-3">Instruções de Uso</h6>
+                  <ol className="mb-0">
+                    <li className="mb-2">Clique em "Iniciar Sessão" para gerar um QR Code.</li>
+                    <li className="mb-2">Abra o WhatsApp no seu celular.</li>
+                    <li className="mb-2">Toque em Configurações (ou nos três pontos) &gt; WhatsApp Web.</li>
+                    <li className="mb-2">Escaneie o QR Code exibido nesta página.</li>
+                    <li className="mb-2">Após a conexão, o sistema poderá enviar mensagens de cobrança automaticamente.</li>
+                  </ol>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}; 
+} 
