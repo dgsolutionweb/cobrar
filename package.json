@@ -1,0 +1,34 @@
+{
+  "name": "cobrar",
+  "version": "1.0.0",
+  "description": "Sistema de automação de cobranças via WhatsApp",
+  "main": "server/src/index.js",
+  "scripts": {
+    "start": "node server/src/index.js",
+    "dev": "nodemon server/src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "node-cron": "^3.0.3",
+    "venom-bot": "^5.0.21"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "prisma": "^5.7.0"
+  },
+  "keywords": [
+    "whatsapp",
+    "cobranca",
+    "automacao"
+  ],
+  "author": "",
+  "license": "ISC"
+}

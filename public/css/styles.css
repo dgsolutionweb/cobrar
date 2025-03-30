@@ -1,0 +1,111 @@
+/* Estilos gerais */
+body {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Navbar */
+.navbar-brand {
+  font-weight: bold;
+  color: #007bff !important;
+}
+
+/* Card de Estatísticas */
+.dashboard-card {
+  transition: all 0.3s;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-pendente {
+  border-left: 5px solid #ffc107;
+}
+
+.card-enviada {
+  border-left: 5px solid #17a2b8;
+}
+
+.card-paga {
+  border-left: 5px solid #28a745;
+}
+
+.card-total {
+  border-left: 5px solid #007bff;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-pendente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-enviada {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-paga {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* Tabelas */
+.table-responsive {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  border-top: none;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Formulários */
+.form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+.btn-action {
+  margin-right: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  
+  .dashboard-card {
+    margin-bottom: 15px;
+  }
+} 

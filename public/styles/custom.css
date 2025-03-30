@@ -1,0 +1,111 @@
+/* Dashboard Cards e Ícones */
+.icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-container.large {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+}
+
+.bg-light-primary {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-light-success {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-light-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-light-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-light-info {
+  background-color: rgba(13, 202, 240, 0.1);
+}
+
+/* Avatar para clientes */
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+/* Ajustes para dashboard */
+.card {
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.chart-container {
+  padding: 10px;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+}
+
+.legend .badge {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+/* Cobranças - Tabela ordenável */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Status badges */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bg-opacity-10 {
+  --bs-bg-opacity: 0.1;
+}
+
+/* Toast notifications */
+.toast-container {
+  z-index: 1100;
+} 

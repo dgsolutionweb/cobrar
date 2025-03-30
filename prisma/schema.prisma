@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id            Int        @id @default(autoincrement())
+  nome          String
+  logo          String?
+  endereco      String?
+  cpfCnpj       String?
+  chavePix      String?
+  whatsappToken String?    // Token para a sessão do WhatsApp
+  clientes      Cliente[]
+  cobrancas     Cobranca[]
+  usuarios      Usuario[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("empresas")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  empresa   Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  empresaId Int
+  role      Role     @default(user)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  telefone  String
+  cobrancas Cobranca[]
+  empresa   Empresa    @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  empresaId Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("clientes")
+}
+
+model Cobranca {
+  id                Int       @id @default(autoincrement())
+  descricao         String
+  valor             Decimal   @db.Decimal(10, 2)
+  dia_cobranca      Int
+  status            Status    @default(pendente)
+  ultimaNotificacao DateTime? 
+  cliente           Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId         Int
+  empresa           Empresa   @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  empresaId         Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("cobrancas")
+}
+
+enum Status {
+  pendente
+  enviada
+  paga
+}
+
+enum Role {
+  user
+  admin
+} 

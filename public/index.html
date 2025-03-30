@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Cobranças via WhatsApp</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- React e React DOM via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel para JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- React Router - versão mais antiga mas mais compatível com CDN -->
+  <script src="https://unpkg.com/history@5.3.0/umd/history.production.min.js"></script>
+  <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.production.min.js"></script>
+  <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.production.min.js"></script>
+  <script>
+    // Garante que ReactRouterDOM está disponível globalmente
+    window.ReactRouterDOM = ReactRouterDOM;
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- Custom JS -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  
+  <!-- React Components -->
+  <script type="text/babel" src="components/NavBar.js"></script>
+  <script type="text/babel" src="components/Dashboard.js"></script>
+  <script type="text/babel" src="components/ClienteList.js"></script>
+  <script type="text/babel" src="components/ClienteForm.js"></script>
+  <script type="text/babel" src="components/CobrancaList.js"></script>
+  <script type="text/babel" src="components/CobrancaForm.js"></script>
+  <script type="text/babel" src="components/Login.js"></script>
+  <script type="text/babel" src="components/Register.js"></script>
+  <script type="text/babel" src="components/EmpresaConfig.js"></script>
+  <script type="text/babel" src="components/WhatsAppConfig.js"></script>
+  <script type="text/babel" src="components/PrivateRoute.js"></script>
+  <script type="text/babel" src="components/ConfiguracoesGerais.js"></script>
+  <script type="text/babel" src="components/PerfilUsuario.js"></script>
+  <script type="text/babel" src="js/app.js"></script>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
